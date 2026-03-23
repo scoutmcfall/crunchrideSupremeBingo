@@ -7,12 +7,11 @@
   <title>Crunchride Supreme Bingo</title>
   <style>
     body, html {
-    height: 100%;
+    min-height: 100%;
     margin: 0;
     padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     overflow-x: hidden;
     box-sizing: border-box;
@@ -48,6 +47,14 @@
       border: none;
       background: #48b693;
       color: white;
+    }
+
+    #board-container {
+    display: flex;
+    flex-grow: 1;
+    justify-content: center; /* vertical centering of board only */
+    align-items: center;
+    width: 100%;
     }
 
     #board {
@@ -92,7 +99,9 @@
   <button onclick="resetMarks()">Reset</button>
 </div>
 
-<div id="board"></div>
+<div id="board-container">
+    <div id="board"></div>
+</div>
 
 <script>
 const TASKS = [
