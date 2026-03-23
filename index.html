@@ -59,12 +59,12 @@
     }
   </style>
 </head>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <body>
 
 <h1>🚴 Bingo</h1>
 
 <div id="controls">
-  <button onclick="newGame(3)">3×3</button>
   <button onclick="newGame(4)">4×4</button>
   <button onclick="resetMarks()">Reset</button>
 </div>
@@ -91,8 +91,60 @@ const TASKS = [
   "Take a shot of a lesser sauce"
 ];
 
-let currentSize = 3;
+let currentSize = 4;
 let boardData = [];
+
+function checkBingo() {
+  const size = currentSize;
+
+  // Convert to 2D grid
+  const grid = [];
+  for (let i = 0; i < size; i++) {
+    grid.push(boardData.slice(i * size, (i + 1) * size));
+  }
+
+  // Check rows
+  for (let row of grid) {
+    if (row.every(cell => cell.marked)) return true;
+  }
+
+  // Check columns
+  for (let col = 0; col < size; col++) {
+    let win = true;
+    for (let row = 0; row < size; row++) {
+      if (!grid[row][col].marked) {
+        win = false;
+        break;
+      }
+    }
+    if (win) return true;
+  }
+
+  // Check diagonals
+  let diag1 = true;
+  let diag2 = true;
+
+  for (let i = 0; i < size; i++) {
+    if (!grid[i][i].marked) diag1 = false;
+    if (!grid[i][size - i - 1].marked) diag2 = false;
+  }
+
+  return diag1 || diag2;
+}
+let hasWon = false;
+
+function celebrateWin() {
+  if (hasWon) return;
+  hasWon = true;
+
+  alert("🎉 BINGO! 🎉");
+
+  confetti({
+    particleCount: 150,
+    spread: 70,
+    origin: { y: 0.6 }
+  });
+}
 
 function shuffle(array) {
   return array.sort(() => Math.random() - 0.5);
@@ -123,9 +175,14 @@ function render() {
     div.innerText = cell.text;
 
     div.onclick = () => {
-      boardData[index].marked = !boardData[index].marked;
-      saveState();
-      render();
+    boardData[index].marked = !boardData[index].marked;
+    saveState();
+
+    if (checkBingo()) {
+        celebrateWin();
+    }
+
+    render();
     };
 
     board.appendChild(div);
