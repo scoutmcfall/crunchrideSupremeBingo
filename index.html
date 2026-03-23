@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Crunchride Supreme Bingo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 10px;
+      background: #f5f5f5;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    #controls {
+      margin-bottom: 10px;
+    }
+
+    button {
+      padding: 8px 12px;
+      margin: 5px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      background: #007bff;
+      color: white;
+    }
+
+    #board {
+      display: grid;
+      gap: 8px;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .cell {
+      background: white;
+      border-radius: 8px;
+      padding: 10px;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 14px;
+      cursor: pointer;
+      border: 2px solid #ddd;
+    }
+
+    .marked {
+      background: #28a745;
+      color: white;
+      border-color: #1e7e34;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🚴 Bingo</h1>
+
+<div id="controls">
+  <button onclick="newGame(3)">3×3</button>
+  <button onclick="newGame(4)">4×4</button>
+  <button onclick="resetMarks()">Reset</button>
+</div>
+
+<div id="board"></div>
+
+<script>
+const TASKS = [
+  "Chihuahua sighting",
+  "Eat a stack of 4 mexican pizzas like a sandwich",
+  "Get baja blasted",
+  "Take a shot of straight diablo sauce",
+  "Eat a taco lady and the tramp style",
+  "Go through the drive thru to order",
+  "Drink a mixture of all the sodas",
+  "Eat a potato taco in 2 bites",
+  "Order something fresca style",
+  "Eat beans",
+  "Eat something from breakfast menu",
+  "Drink water",
+  "Eat 5 crunchwraps",
+  "Lizard sighting",
+  "Snake sighting",
+  "Take a shot of a lesser sauce"
+];
+
+let currentSize = 3;
+let boardData = [];
+
+function shuffle(array) {
+  return array.sort(() => Math.random() - 0.5);
+}
+
+function newGame(size) {
+  currentSize = size;
+  const total = size * size;
+
+  const shuffled = shuffle([...TASKS]);
+  boardData = shuffled.slice(0, total).map(task => ({
+    text: task,
+    marked: false
+  }));
+
+  saveState();
+  render();
+}
+
+function render() {
+  const board = document.getElementById("board");
+  board.style.gridTemplateColumns = `repeat(${currentSize}, 1fr)`;
+  board.innerHTML = "";
+
+  boardData.forEach((cell, index) => {
+    const div = document.createElement("div");
+    div.className = "cell" + (cell.marked ? " marked" : "");
+    div.innerText = cell.text;
+
+    div.onclick = () => {
+      boardData[index].marked = !boardData[index].marked;
+      saveState();
+      render();
+    };
+
+    board.appendChild(div);
+  });
+}
+
+function resetMarks() {
+  boardData.forEach(cell => cell.marked = false);
+  saveState();
+  render();
+}
+
+function saveState() {
+  localStorage.setItem("bingoState", JSON.stringify({
+    size: currentSize,
+    data: boardData
+  }));
+}
+
+function loadState() {
+  const saved = localStorage.getItem("bingoState");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    currentSize = parsed.size;
+    boardData = parsed.data;
+    render();
+  } else {
+    newGame(3);
+  }
+}
+
+loadState();
+</script>
+
+</body>
+</html>
